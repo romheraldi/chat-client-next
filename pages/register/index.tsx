@@ -1,10 +1,12 @@
 import {useState} from "react";
-import axios from "axios";
+import axios, {Axios, AxiosError} from "axios";
 import Link from "next/link";
 
 export default function Register() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
+    const [successMessage, setSuccess] = useState(null)
+    const [failedMessage, setFailed] = useState(null)
 
     const postRegister = async () => {
         try {
@@ -13,9 +15,10 @@ export default function Register() {
                 password
             })
 
-            console.log(response.data)
-        } catch(e) {
-            console.error(e)
+            setSuccess(response.data.message)
+        } catch(e: any) {
+            console.log(e.response?.data.message)
+            setFailed(e.response?.data.message)
         }
 
     }
@@ -28,6 +31,19 @@ export default function Register() {
             <p className={"w-96 text-center"}>
                 Let&apos;s using Nestian to chat!, We&apos;ll register as {username || "none"}
             </p>
+
+            {
+                successMessage &&
+                    <div className="mt-5 text-center p-3 bg-red-300 border-2 border-green-500 text-green-500">
+                        {successMessage}
+                    </div>
+            }
+            {
+                failedMessage &&
+                <div className="mt-5 text-center p-3 bg-red-300 border-2 border-red-500 text-red-500">
+                    {failedMessage}
+                </div>
+            }
             <div className={"mt-10"}>
                 <div className="mb-5">
                     <input type="text" name="username" className={"text-center p-3"} placeholder="Your username" value={username} onChange={(e) => setUsername(e.target.value)}/>
