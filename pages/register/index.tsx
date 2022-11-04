@@ -34,7 +34,7 @@ export default function Register() {
 
             {
                 successMessage &&
-                    <div className="mt-5 text-center p-3 bg-red-300 border-2 border-green-500 text-green-500">
+                    <div className="mt-5 text-center p-3 bg-green-300 border-2 border-green-500 text-green-500">
                         {successMessage}
                     </div>
             }
