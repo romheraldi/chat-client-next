@@ -3,6 +3,7 @@ import Link from "next/link";
 import axios from "axios";
 import {NextResponse} from "next/server";
 import {useRouter} from "next/router";
+import {getCookie, setCookie} from "cookies-next";
 
 export default function Login() {
     const router = useRouter()
@@ -12,7 +13,7 @@ export default function Login() {
     const [failedMessage, setFailed] = useState(null)
 
     useEffect(() => {
-        const nekot = sessionStorage.getItem('nekot')
+        const nekot = getCookie('nekot')
         if (nekot) {
             router.push('/dash')
         }
@@ -25,9 +26,11 @@ export default function Login() {
                 password
             })
 
-            sessionStorage.setItem('nekot', response.data.data.access_token)
+            setCookie('nekot', response.data.data.access_token, {
+                maxAge: 3600
+            })
 
-            router.push('/dash')
+            await router.push('/dash')
         } catch(e: any) {
             console.log(e.response?.data.message)
             setFailed(e.response?.data.message)

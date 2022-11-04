@@ -2,17 +2,20 @@ import {useEffect, useState} from "react";
 import axios, {Axios, AxiosError} from "axios";
 import Link from "next/link";
 import {NextResponse} from "next/server";
+import {useRouter} from "next/router";
+import {getCookie} from "cookies-next";
 
 export default function Register() {
+    const router = useRouter()
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [successMessage, setSuccess] = useState(null)
     const [failedMessage, setFailed] = useState(null)
 
     useEffect(() => {
-        const nekot = sessionStorage.getItem('nekot')
+        const nekot = getCookie('nekot')
         if (nekot) {
-            NextResponse.redirect('/dash')
+            router.push('/dash')
         }
     })
 
