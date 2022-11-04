@@ -1,12 +1,20 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import axios, {Axios, AxiosError} from "axios";
 import Link from "next/link";
+import {NextResponse} from "next/server";
 
 export default function Register() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [successMessage, setSuccess] = useState(null)
     const [failedMessage, setFailed] = useState(null)
+
+    useEffect(() => {
+        const nekot = sessionStorage.getItem('nekot')
+        if (nekot) {
+            NextResponse.redirect('/dash')
+        }
+    })
 
     const postRegister = async () => {
         try {

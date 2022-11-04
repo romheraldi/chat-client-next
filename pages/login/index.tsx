@@ -1,12 +1,22 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import axios from "axios";
+import {NextResponse} from "next/server";
+import {useRouter} from "next/router";
 
 export default function Login() {
+    const router = useRouter()
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [successMessage, setSuccess] = useState(null)
     const [failedMessage, setFailed] = useState(null)
+
+    useEffect(() => {
+        const nekot = sessionStorage.getItem('nekot')
+        if (nekot) {
+            router.push('/dash')
+        }
+    })
 
     const postLogin = async () => {
         try {
@@ -15,12 +25,28 @@ export default function Login() {
                 password
             })
 
+            sessionStorage.setItem('nekot', response.data.data.access_token)
+
+            router.push('/dash')
+        } catch(e: any) {
+            console.log(e.response?.data.message)
+            setFailed(e.response?.data.message)
+        }
+    }
+
+    const checkLogin = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/users/me', {
+                headers: {
+                    'x-auth': sessionStorage.getItem('nekot')
+                }
+            })
+
             console.log(response.data)
         } catch(e: any) {
             console.log(e.response?.data.message)
             setFailed(e.response?.data.message)
         }
-
     }
 
     return (
@@ -52,6 +78,7 @@ export default function Login() {
                 </div>
                 <div className="mb-5 text-center">
                     <button type="submit" onClick={() => postLogin()} className={"px-5 py-2 border-2 hover:bg-white hover:text-black"}>Login!</button>
+                    <button type="submit" onClick={() => checkLogin()} className={"px-5 py-2 border-2 hover:bg-white hover:text-black"}>Check Login!</button>
                 </div>
             </div>
             <p>Does not have account? Come to <Link href={'/register'}>register new account</Link></p>

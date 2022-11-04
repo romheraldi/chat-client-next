@@ -1,7 +1,17 @@
 import styles from '../styles/Home.module.css'
 import ButtonLink from "../components/button/buttonLink";
+import {useEffect} from "react";
+import {NextResponse} from "next/server";
+import {useRouter} from "next/router";
 
 export default function Home() {
+    const router = useRouter()
+    useEffect(() => {
+        const nekot = sessionStorage.getItem('nekot')
+        if (nekot) {
+           router.push('/dash')
+        }
+    })
   return (
       <div className="flex flex-col content-center justify-items-center items-center center mt-32">
           <h1 className="text-3xl mb-10 font-bold underline">
