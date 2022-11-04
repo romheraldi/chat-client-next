@@ -1,4 +1,5 @@
 import {useState} from "react";
+import Link from "next/link";
 
 export default function Login() {
     const [username, setUsername] = useState('')
@@ -12,7 +13,7 @@ export default function Login() {
             <p className={"w-96 text-center"}>
                 Let&apos;s using Nestian to chat!, We&apos;ll login as {username || "none"}
             </p>
-            <form action="" className={"mt-10"}>
+            <div className={"mt-10"}>
                 <div className="mb-5">
                     <input type="text" name="username" className={"text-center p-3"} placeholder="Your username" value={username} onChange={(e) => setUsername(e.target.value)}/>
                 </div>
@@ -22,8 +23,8 @@ export default function Login() {
                 <div className="mb-5 text-center">
                     <button type="submit" className={"px-5 py-2 border-2 hover:bg-white hover:text-black"}>Login!</button>
                 </div>
-            </form>
-            <p>Does not have account? Come to <a href="/register" className="text-blue-500 font-bold">register now!</a></p>
+            </div>
+            <p>Does not have account? Come to <Link href={'/register'}>register new account</Link></p>
         </div>
     )
 }
