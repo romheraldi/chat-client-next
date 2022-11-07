@@ -21,6 +21,8 @@ export default function Dash() {
     const router = useRouter()
     const [user, setUser] = useState({id: null, username: ''})
     const [rooms, setRooms] = useState<Room[]>([])
+    const [newRoom, setNewRoom] = useState('')
+    const [failed, setFailed] = useState('')
     let socket = io('http://localhost:3000')
 
     useEffect(() => {
@@ -71,12 +73,44 @@ export default function Dash() {
             socket.emit('join', `member-${user.id}`)
             socket.emit('fetchRooms', {id: user.id})
         }
+
+        socket.on('inRoom', async (msg) => {
+            console.log("hai")
+            
+            await router.push('/dash/'+msg)
+        })
+
+        socket.on('joinRoom', (msg) => {
+            setRooms(oldRooms => [...oldRooms, msg])
+        })
     }, [])
 
     const logout = () => {
         deleteCookie('nekot')
         socket.disconnect()
         router.push('/login')
+    }
+
+    const sendInvitation = async () => {
+        if (newRoom) {
+            try {
+                const result = await axios.get(`http://localhost:3000/users/username/${newRoom}`, {
+                    headers: {
+                        'x-auth': getCookie('nekot')
+                    }
+                })
+
+                console.log("Sending room")
+                socket.emit('createRoom', {
+                    user_id: user.id,
+                    another_user_id: result.data.data.id
+                })
+
+                setNewRoom("")
+            } catch (e: any) {
+                setFailed(e.response?.data?.message)
+            }
+        }
     }
     return (
         <div className="flex flex-col content-center justify-items-center items-center center mt-32">
@@ -95,9 +129,25 @@ export default function Dash() {
                                          className="mt-5 border-2 p-3 hover:bg-white hover:text-black">{room.another_user?.username}</Link>
                         } else {
                             return <Link href={`/dash/${room.socket}`}
-                                className="mt-5 border-2 p-3 hover:bg-white hover:text-black">{room.user?.username}</Link>
+                                         className="mt-5 border-2 p-3 hover:bg-white hover:text-black">{room.user?.username}</Link>
                         }
                     }) : "No data here"
+                }
+            </div>
+            <div className="mt-10 text-center">
+                <input
+                    type="text"
+                    name="password"
+                    className={"text-center p-3"}
+                    placeholder="Your friend ID"
+                    value={newRoom}
+                    onKeyDown={(e) => e.key === "Enter" && sendInvitation()}
+                    onChange={(e) => setNewRoom(e.target.value)}/>
+                {
+                    failed &&
+                    <div className="mt-5 text-center p-3 bg-red-300 border-2 border-red-500 text-red-500">
+                        {failed}
+                    </div>
                 }
             </div>
             <div className="mt-10">

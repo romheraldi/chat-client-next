@@ -32,9 +32,29 @@ export default function Dash() {
     const [messages, setMessages] = useState<Message[]>([])
     const [newMessage, setNewMessage] = useState("")
     let socket = io('http://localhost:3000')
+    useEffect(() => {
+        if (router.isReady) {
+            // Code using query
+            const data = async () => {
+                console.log(`http://localhost:3000/rooms/${id}`)
+                try {
+                    const result = await axios.get(`http://localhost:3000/rooms/${id}`, {
+                        headers: {
+                            'x-auth': getCookie('nekot')
+                        }
+                    })
+                    await setRoom(result.data.data)
+
+                } catch (e: any) {
+                    console.error(e.response.data)
+                }
+            }
+
+            data()
+        }
+    }, [router.isReady]);
 
     useEffect(() => {
-        console.log("Hai")
 
         socket.on('connect', () => {
             console.log("Connected to socket server")
@@ -60,24 +80,13 @@ export default function Dash() {
         }
 
         userData()
+    }, [])
 
-        const data = async () => {
-            console.log(`http://localhost:3000/rooms/${id}`)
-            try {
-                const result = await axios.get(`http://localhost:3000/rooms/${id}`, {
-                    headers: {
-                        'x-auth': getCookie('nekot')
-                    }
-                })
+    useEffect(() => {
+        fetchMessages()
+    }, [room])
 
-                await setRoom(result.data.data)
-            } catch (e: any) {
-                console.error(e.response.data)
-            }
-        }
-
-        data()
-
+    const fetchMessages = async () => {
         socket.emit("fetchRoomMessages", room.socket)
 
         socket.on('roomMessages', msg => setMessages(msg))
@@ -85,7 +94,7 @@ export default function Dash() {
         socket.on('message', (msg) => {
             setMessages(oldMessages => [...oldMessages, msg])
         })
-    }, [])
+    }
 
     const sendMessage = async () => {
         if (newMessage) {
@@ -108,7 +117,9 @@ export default function Dash() {
             <div className="mt-5">
                 {
                     messages.length > 0 ? messages.map((message) => {
-                        return <div><span className={"text-blue-500 font-bold"}>({message.sender.username})</span> {message.message}</div>
+                        return <div><span
+                            className={"text-blue-500 font-bold"}>({message.sender.username})</span> {message.message}
+                        </div>
                     }) : "No message here"
                 }
             </div>
